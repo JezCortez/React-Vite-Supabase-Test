@@ -46,3 +46,7 @@ If you are developing a production application, we recommend using TypeScript wi
 ### Vercel
 - Cloud platform for deploying and scaling web apps
 - Key features include automatic delivery and global content delivery
+
+
+## Tech Stack Diagram
+![alt text](src/diagram-export-8-7-2025-11_33_14-AM.png "Diagram")
