@@ -1,11 +1,12 @@
-// src/components/Dashboard.jsx
 import { useEffect, useState } from 'react'
 import { supabase } from '../services/supabaseClient'
+import { useNavigate } from 'react-router-dom' // ✅ import useNavigate
 
 export default function Dashboard() {
   const [user, setUser] = useState(null)
   const [session, setSession] = useState(null)
   const [error, setError] = useState(null)
+  const navigate = useNavigate() // ✅ hook for navigation
 
   useEffect(() => {
     const getUserAndSession = async () => {
@@ -24,9 +25,13 @@ export default function Dashboard() {
   }, []);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    window.location.reload()
-  }
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      setError(error.message);
+    } else {
+      navigate('/'); // ✅ redirect to login after logout
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-gray-800">
@@ -36,9 +41,13 @@ export default function Dashboard() {
         <>
           <div className="mb-6 w-full max-w-xl bg-white rounded shadow p-4">
             <h2 className="text-xl font-semibold mb-2">User Info</h2>
-            <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto mb-2">{JSON.stringify(user, null, 2)}</pre>
+            <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto mb-2">
+              {JSON.stringify(user, null, 2)}
+            </pre>
             <h2 className="text-xl font-semibold mb-2">Session</h2>
-            <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto mb-2">{JSON.stringify(session, null, 2)}</pre>
+            <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto mb-2">
+              {JSON.stringify(session, null, 2)}
+            </pre>
             <p className="text-green-600 font-medium">Connection to Supabase successful!</p>
           </div>
           <button
@@ -52,5 +61,5 @@ export default function Dashboard() {
         <p>Loading...</p>
       )}
     </div>
-  )
+  );
 }
