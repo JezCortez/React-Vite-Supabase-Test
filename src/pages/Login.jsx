@@ -1,92 +1,115 @@
-// src/pages/Login.jsx
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "../services/supabaseClient";
+import { useState } from 'react'
+import { supabase } from '../services/supabaseClient'
+import { useNavigate } from 'react-router-dom'
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState(null)
+  const [message, setMessage] = useState(null)
+  const navigate = useNavigate()
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setError("");
-    setMessage("");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    e.preventDefault()
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+
     if (error) {
-      setError(error.message);
+      setError(error.message)
+      setMessage(null)
     } else {
-      navigate("/dashboard");
+      setError(null)
+      navigate('/dashboard')
     }
-  };
+  }
 
   const handleForgotPassword = async () => {
     if (!email) {
-      setError("Please enter your email first.");
-      return;
+      setError("Please enter your email first.")
+      return
     }
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
+      redirectTo: 'https://your-deployed-site.com/reset-password'
+    })
+
     if (error) {
-      setError(error.message);
+      setError(error.message)
+      setMessage(null)
     } else {
-      setMessage("Password reset link sent! Check your email.");
+      setError(null)
+      setMessage('Password reset link has been sent to your email.')
     }
-  };
+  }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form onSubmit={handleLogin} className="bg-white p-8 rounded shadow-md w-96">
-        <h1 className="text-2xl font-bold mb-4">Login</h1>
-
-        {error && <p className="text-red-500">{error}</p>}
-        {message && <p className="text-green-500">{message}</p>}
+        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
 
         <input
           type="email"
           placeholder="Email"
-          className="border p-2 w-full mb-4 rounded"
+          className="w-full p-2 border mb-4 rounded"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <input
-          type="password"
-          placeholder="Password"
-          className="border p-2 w-full mb-4 rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+
+        <div className="relative mb-4">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            className="w-full p-2 border rounded pr-10"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button
+            type="button"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+            tabIndex={-1}
+            onClick={() => setShowPassword((v) => !v)}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? "🙈" : "👁️"}
+          </button>
+        </div>
+
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+        {message && <p className="text-green-500 mb-4">{message}</p>}
 
         <button
           type="submit"
-          className="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
         >
           Login
         </button>
 
-        {/* Forgot Password */}
-        <button
-          type="button"
-          onClick={handleForgotPassword}
-          className="mt-3 text-blue-500 hover:underline w-full text-center"
-        >
-          Forgot password?
-        </button>
+        {/* Forgot password link */}
+        <div className="text-center mt-2">
+          <button
+            type="button"
+            onClick={handleForgotPassword}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            Forgot Password?
+          </button>
+        </div>
 
-        {/* Register Button */}
-        <button
-          type="button"
-          onClick={() => navigate("/register")}
-          className="mt-3 bg-gray-300 text-black w-full py-2 rounded hover:bg-gray-400"
-        >
-          Register
-        </button>
+        {/* Register link */}
+        <div className="text-center mt-4">
+          <p>Don't have an account?{" "}
+            <button
+              type="button"
+              onClick={() => navigate('/register')}
+              className="text-blue-600 hover:underline"
+            >
+              Register here
+            </button>
+          </p>
+        </div>
       </form>
     </div>
-  );
+  )
 }
