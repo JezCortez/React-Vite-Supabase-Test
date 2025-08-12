@@ -1,53 +1,41 @@
-import { useState } from "react";
-import { supabase } from "../services/supabaseClient";
-import { useNavigate } from "react-router-dom";
+// src/pages/ResetPassword.jsx
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '../services/supabaseClient';
 
 export default function ResetPassword() {
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const handleReset = async (e) => {
     e.preventDefault();
-    setMessage("");
-
-    const { data, error } = await supabase.auth.updateUser({
-      password: password
-    });
+    const { data, error } = await supabase.auth.updateUser({ password });
 
     if (error) {
-      setMessage(error.message);
+      alert(error.message);
     } else {
-      setMessage("Password updated successfully!");
-      setTimeout(() => navigate("/"), 2000);
+      alert('Password updated successfully!');
+      navigate('/login');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <form
-        onSubmit={handleReset}
-        className="bg-white p-6 rounded shadow-md w-full max-w-sm"
+    <form onSubmit={handleReset} className="p-8 bg-white rounded shadow-md w-96 mx-auto mt-10">
+      <h2 className="text-2xl font-bold mb-4">Reset Password</h2>
+      <input
+        type="password"
+        placeholder="New Password"
+        className="w-full p-2 border mb-4 rounded"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+      <button
+        type="submit"
+        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
       >
-        <h2 className="text-2xl font-bold mb-4">Reset Password</h2>
-        {message && <p className="text-green-600">{message}</p>}
-
-        <input
-          type="password"
-          placeholder="Enter new password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="w-full p-2 border rounded mb-4"
-        />
-
-        <button
-          type="submit"
-          className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600"
-        >
-          Update Password
-        </button>
-      </form>
-    </div>
+        Update Password
+      </button>
+    </form>
   );
 }
