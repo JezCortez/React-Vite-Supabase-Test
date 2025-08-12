@@ -1,126 +1,74 @@
-import { useState } from 'react'
-import { supabase } from '../services/supabaseClient'
-import { useNavigate } from 'react-router-dom'
+// src/pages/Login.jsx
+import { useState } from "react";
+import { supabase } from "../services/supabaseClient";
 
 export default function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState(null)
-  const [message, setMessage] = useState(null)
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-
-    if (error) {
-      setError(error.message)
-    } else {
-      navigate('/dashboard')
-    }
-  }
+    e.preventDefault();
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) setError(error.message);
+  };
 
   const handleForgotPassword = async () => {
     if (!email) {
-      setError("Please enter your email first.")
-      return
+      setError("Please enter your email first.");
+      return;
     }
-
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`
-    })
-
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
     if (error) {
-      setError(error.message)
+      setError(error.message);
     } else {
-      setMessage("Password reset link sent! Check your email.")
-      setError(null)
+      setMessage("Password reset link sent! Check your email.");
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
       <form onSubmit={handleLogin} className="bg-white p-8 rounded shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+        <h1 className="text-2xl font-bold mb-4">Login</h1>
+
+        {error && <p className="text-red-500">{error}</p>}
+        {message && <p className="text-green-500">{message}</p>}
 
         <input
           type="email"
           placeholder="Email"
-          className="w-full p-2 border mb-4 rounded"
+          className="border p-2 w-full mb-4 rounded"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-
-        <div className="relative mb-2">
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            className="w-full p-2 border rounded pr-10"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button
-            type="button"
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
-            tabIndex={-1}
-            onClick={() => setShowPassword((v) => !v)}
-            aria-label={showPassword ? "Hide password" : "Show password"}
-          >
-            {showPassword ? (
-              // eye-off icon
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 002.25 12c2.036 3.807 6.07 6.75 9.75 6.75 1.772 0 3.487-.457 4.97-1.277M21.75 12c-.512-.96-1.22-1.927-2.102-2.797m-3.348-2.6A6.75 6.75 0 0012 5.25c-2.25 0-4.5 1.5-6.364 3.75M15 12a3 3 0 11-6 0 3 3 0 016 0Z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18" />
-              </svg>
-            ) : (
-              // eye icon
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12S5.25 6.75 12 6.75 21.75 12 21.75 12 18.75 17.25 12 17.25 2.25 12 2.25 12Z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15a3 3 0 100-6 3 3 0 000 6Z" />
-              </svg>
-            )}
-          </button>
-        </div>
-
-        {/* Forgot password link */}
-        <div className="text-right mb-4">
-          <button
-            type="button"
-            className="text-sm text-blue-600 hover:underline"
-            onClick={handleForgotPassword}
-          >
-            Forgot password?
-          </button>
-        </div>
-
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        {message && <p className="text-green-500 mb-4">{message}</p>}
+        <input
+          type="password"
+          placeholder="Password"
+          className="border p-2 w-full mb-4 rounded"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700"
         >
           Login
         </button>
 
-        {/* Register button */}
-        <div className="text-center mt-4">
-          <p>Don't have an account?</p>
-          <button
-            type="button"
-            onClick={() => navigate('/register')}
-            className="mt-2 text-blue-600 hover:underline"
-          >
-            Register here
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleForgotPassword}
+          className="mt-3 text-blue-500 hover:underline w-full text-center"
+        >
+          Forgot password?
+        </button>
       </form>
     </div>
-  )
+  );
 }
