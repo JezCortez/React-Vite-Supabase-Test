@@ -12,7 +12,7 @@ export default function ForgotPassword() {
     const isLocal = window.location.hostname === "localhost";
     const redirectTo = isLocal
       ? "http://localhost:5173/reset-password"
-      : https://react-vite-supabase-test.vercel.app/reset-password"; // change to your deployed URL
+      : "https://react-vite-supabase-test.vercel.app/reset-password"; // change to your deployed URL
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo,
