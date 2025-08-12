@@ -1,5 +1,6 @@
 // src/pages/Login.jsx
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabaseClient";
 
 export default function Login() {
@@ -7,11 +8,18 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
+    setMessage("");
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) setError(error.message);
+    if (error) {
+      setError(error.message);
+    } else {
+      navigate("/dashboard");
+    }
   };
 
   const handleForgotPassword = async () => {
@@ -61,12 +69,22 @@ export default function Login() {
           Login
         </button>
 
+        {/* Forgot Password */}
         <button
           type="button"
           onClick={handleForgotPassword}
           className="mt-3 text-blue-500 hover:underline w-full text-center"
         >
           Forgot password?
+        </button>
+
+        {/* Register Button */}
+        <button
+          type="button"
+          onClick={() => navigate("/register")}
+          className="mt-3 bg-gray-300 text-black w-full py-2 rounded hover:bg-gray-400"
+        >
+          Register
         </button>
       </form>
     </div>
