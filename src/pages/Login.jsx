@@ -7,6 +7,7 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState(null)
+  const [message, setMessage] = useState(null)
   const navigate = useNavigate()
 
   const handleLogin = async (e) => {
@@ -20,6 +21,24 @@ export default function Login() {
       setError(error.message)
     } else {
       navigate('/dashboard')
+    }
+  }
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setError("Please enter your email first.")
+      return
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`
+    })
+
+    if (error) {
+      setError(error.message)
+    } else {
+      setMessage("Password reset link sent! Check your email.")
+      setError(null)
     }
   }
 
@@ -37,8 +56,7 @@ export default function Login() {
           required
         />
 
-
-        <div className="relative mb-4">
+        <div className="relative mb-2">
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
@@ -55,20 +73,34 @@ export default function Login() {
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? (
+              // eye-off icon
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 2.25 12c2.036 3.807 6.07 6.75 9.75 6.75 1.772 0 3.487-.457 4.97-1.277M21.75 12c-.512-.96-1.22-1.927-2.102-2.797m-3.348-2.6A6.75 6.75 0 0 0 12 5.25c-2.25 0-4.5 1.5-6.364 3.75M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 002.25 12c2.036 3.807 6.07 6.75 9.75 6.75 1.772 0 3.487-.457 4.97-1.277M21.75 12c-.512-.96-1.22-1.927-2.102-2.797m-3.348-2.6A6.75 6.75 0 0012 5.25c-2.25 0-4.5 1.5-6.364 3.75M15 12a3 3 0 11-6 0 3 3 0 016 0Z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18" />
               </svg>
             ) : (
+              // eye icon
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12S5.25 6.75 12 6.75 21.75 12 21.75 12 18.75 17.25 12 17.25 2.25 12 2.25 12Z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15a3 3 0 100-6 3 3 0 000 6Z" />
               </svg>
             )}
           </button>
         </div>
 
+        {/* Forgot password link */}
+        <div className="text-right mb-4">
+          <button
+            type="button"
+            className="text-sm text-blue-600 hover:underline"
+            onClick={handleForgotPassword}
+          >
+            Forgot password?
+          </button>
+        </div>
+
         {error && <p className="text-red-500 mb-4">{error}</p>}
+        {message && <p className="text-green-500 mb-4">{message}</p>}
 
         <button
           type="submit"
