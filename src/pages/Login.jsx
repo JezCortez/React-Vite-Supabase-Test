@@ -1,16 +1,17 @@
 import { useState } from "react";
-import { supabase } from "../services/supabaseClient";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { supabase } from "../supabaseClient";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(null);
+    setError("");
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -22,60 +23,89 @@ export default function Login() {
       return;
     }
 
-    // Fetch profile from profiles table
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", data.user.id)
-      .single();
+    if (data?.user) {
+      // Redirect based on profile role
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
 
-    if (profileError) {
-      console.error("Error fetching profile:", profileError.message);
-      setError("Could not fetch user profile.");
-      return;
-    }
+      if (profileError || !profile) {
+        setError("Could not fetch user profile");
+        return;
+      }
 
-    // Redirect based on role
-    if (profile.role === "admin") {
-      navigate("/admin");
-    } else {
-      navigate("/dashboard");
+      if (profile.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <form
-        onSubmit={handleLogin}
-        className="bg-white p-8 rounded shadow-md w-full max-w-md"
-      >
-        <h1 className="text-2xl font-bold mb-6">Login</h1>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-white p-8 rounded-2xl shadow-lg w-96">
+        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 mb-4 border rounded"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 mb-4 border rounded"
-          required
-        />
+        {error && (
+          <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+        )}
 
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
-        >
-          Login
-        </button>
-      </form>
+        <form onSubmit={handleLogin} className="space-y-4">
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+            />
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium">Password</label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-2 text-sm text-blue-500 hover:underline"
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+          </div>
+
+          {/* Login Button */}
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+          >
+            Login
+          </button>
+        </form>
+
+        {/* Links */}
+        <div className="flex justify-between mt-4 text-sm">
+          <Link to="/register" className="text-blue-600 hover:underline">
+            Create Account
+          </Link>
+          <Link to="/forgot-password" className="text-blue-600 hover:underline">
+            Forgot Password?
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
