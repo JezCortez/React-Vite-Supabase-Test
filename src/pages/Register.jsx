@@ -21,6 +21,19 @@ export default function Register() {
       setError(error.message);
       return;
     }
+    if (data.user) {
+  const { error: profileError } = await supabase.from("profiles").insert([
+    {
+      id: data.user.id,   
+      email: email,
+      role: "user"        
+    }
+  ]);
+
+  if (profileError) {
+    console.error("Profile insert error:", profileError.message);
+  }
+}
 
     // Create entry in profiles table with role "user" by default
     const { error: profileError } = await supabase.from("profiles").insert([
