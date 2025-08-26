@@ -9,7 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import AdminPanel from "./pages/AdminPanel";
-import AdminRoute from "./components/AdminRoute";
+import AdminRoute from "./pages/AdminRoute";
 
 function App() {
   const [user, setUser] = useState(null);
