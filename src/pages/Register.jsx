@@ -22,6 +22,18 @@ export default function Register() {
       setMessage('Registration successful! Please check your email to verify your account.')
     }
   }
+    const { data, error } = await supabase.auth.signUp({
+  email,
+  password,
+})
+
+if (!error) {
+  await supabase.from('profiles').insert({
+    id: data.user.id,
+    email: data.user.email,
+    role: 'user'
+  })
+}
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
